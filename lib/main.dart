@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart'; 
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 import 'view_models/auth_view_model.dart';
+import 'views/splash_view.dart';
+import 'views/auth_view.dart';
+import 'views/home_dashboard_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,8 +14,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    ChangeNotifierProvider( // Using ChangeNotifierProvider
-      create: (_) => AuthViewModel(), // Providing AuthViewModel
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+      ],
       child: MyApp(),
     ),
   );
@@ -31,11 +36,14 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        fontFamily: 'Inter',
       ),
-      home: Scaffold(
-        appBar: AppBar(title: Text('EcoTrack App')),
-        body: Center(child: Text('AuthViewModel Provided!')),
-      ),
+      home: SplashView(),
+      routes: {
+        '/splash': (context) => SplashView(),
+        '/auth_view': (context) => AuthView(),
+        '/home_dashboard': (context) => HomeDashboard(),
+      },
     );
   }
 }

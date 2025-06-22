@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthViewModel with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -16,6 +17,11 @@ class AuthViewModel with ChangeNotifier {
       _currentUser = user;
       notifyListeners();
     });
+  }
+
+  void clearErrorMessage() {
+    _errorMessage = null;
+    notifyListeners();
   }
 
   Future<void> signUp(String email, String password) async {
@@ -47,12 +53,47 @@ class AuthViewModel with ChangeNotifier {
     }
   }
 
+  Future<void> signInWithGoogle() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) {
+        _errorMessage = 'Google sign-in cancelled.';
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await _auth.signInWithCredential(credential);
+      _errorMessage = 'Signed in with Google successfully!';
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = e.message;
+    } catch (e) {
+      _errorMessage = 'An unexpected error occurred during Google sign-in: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> signOutUser() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
       await _auth.signOut();
+      if (await GoogleSignIn().isSignedIn()) {
+        await GoogleSignIn().signOut();
+      }
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message;
     } finally {
