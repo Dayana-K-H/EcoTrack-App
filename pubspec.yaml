@@ -42,6 +42,7 @@ dependencies:
   intl: ^0.18.1
   google_sign_in: ^6.2.1 
   font_awesome_flutter: ^10.6.0 
+  supabase_flutter: ^2.9.1
 
 dependency_overrides:
   collection: 1.19.1  
