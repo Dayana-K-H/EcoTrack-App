@@ -20,9 +20,17 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    // Coba akses aplikasi Firebase default.
+    // Jika aplikasi sudah ada, ini akan berhasil.
+    Firebase.app();
+  } catch (e) {
+    // Jika terjadi error saat mencoba mengakses aplikasi (berarti belum diinisialisasi),
+    // maka lanjutkan dengan inisialisasi.
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
