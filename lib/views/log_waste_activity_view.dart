@@ -48,11 +48,12 @@ class _LogWasteActivityViewState extends State<LogWasteActivityView> {
       final activity = CarbonActivity(
         id: _isEditing ? widget.activityToEdit!.id : null,
         userId: userId,
-        transportMode: _isEditing ? widget.activityToEdit!.transportMode : 'N/A', // Set N/A or default for non-relevant fields
+        transportMode: _isEditing ? widget.activityToEdit!.transportMode : 'N/A',
         transportDistance: _isEditing ? widget.activityToEdit!.transportDistance : 0.0,
         electricityUsage: _isEditing ? widget.activityToEdit!.electricityUsage : 0.0,
         wasteWeight: double.parse(_wasteWeightController.text),
         timestamp: _isEditing ? widget.activityToEdit!.timestamp : DateTime.now(),
+        type: CarbonActivityType.waste, // NEW: Tetapkan jenis aktivitas
       );
 
       if (_isEditing) {

@@ -53,6 +53,7 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
         electricityUsage: double.parse(_electricityUsageController.text),
         wasteWeight: _isEditing ? widget.activityToEdit!.wasteWeight : 0.0,
         timestamp: _isEditing ? widget.activityToEdit!.timestamp : DateTime.now(),
+        type: CarbonActivityType.electricity, // NEW: Tetapkan jenis aktivitas
       );
 
       if (_isEditing) {

@@ -67,6 +67,7 @@ class CarbonLogViewModel with ChangeNotifier {
         electricityUsage: activity.electricityUsage,
         wasteWeight: activity.wasteWeight,
         timestamp: activity.timestamp,
+        type: activity.type
       );
 
       final response = await _supabase

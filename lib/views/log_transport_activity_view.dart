@@ -56,6 +56,7 @@ class _LogTransportActivityViewState extends State<LogTransportActivityView> {
         electricityUsage: _isEditing ? widget.activityToEdit!.electricityUsage : 0.0,
         wasteWeight: _isEditing ? widget.activityToEdit!.wasteWeight : 0.0,
         timestamp: _isEditing ? widget.activityToEdit!.timestamp : DateTime.now(),
+        type: CarbonActivityType.transport, // NEW: Tetapkan jenis aktivitas
       );
 
       if (_isEditing) {
@@ -134,7 +135,7 @@ class _LogTransportActivityViewState extends State<LogTransportActivityView> {
                   });
                 },
                 validator: (value) => value == null ? 'Please select a mode' : null,
-                items: <String>['Car', 'Motorcycle', 'Public Transport'] // Daftar yang diperbarui
+                items: <String>['Car', 'Motorcycle', 'Public Transport']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
