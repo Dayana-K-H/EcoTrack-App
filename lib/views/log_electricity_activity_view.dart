@@ -1,8 +1,11 @@
+// lib/views/log_electricity_activity_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/carbon_activity.dart';
 import '../view_models/carbon_log_view_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LogElectricityActivityView extends StatefulWidget {
   final CarbonActivity? activityToEdit;
@@ -53,7 +56,7 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
         electricityUsage: double.parse(_electricityUsageController.text),
         wasteWeight: _isEditing ? widget.activityToEdit!.wasteWeight : 0.0,
         timestamp: _isEditing ? widget.activityToEdit!.timestamp : DateTime.now(),
-        type: CarbonActivityType.electricity, // NEW: Tetapkan jenis aktivitas
+        type: CarbonActivityType.electricity,
       );
 
       if (_isEditing) {
@@ -86,14 +89,13 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           _isEditing ? 'Edit Electricity Usage' : 'Log Electricity Usage',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.green.shade700,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -108,10 +110,24 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
               ),
               const SizedBox(height: 30),
 
-              // --- Energy Consumption Section ---
               Text(
                 'Energy Consumption',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColorDark),
+              ),
+              const SizedBox(height: 15),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Energy Source',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: Icon(Icons.flash_on),
+                ),
+                value: 'Grid Electricity',
+                items: const [
+                  DropdownMenuItem(value: 'Grid Electricity', child: Text('Grid Electricity')),
+                  DropdownMenuItem(value: 'Solar Panels', child: Text('Solar Panels')),
+                ],
+                onChanged: (String? newValue) {
+                },
               ),
               const SizedBox(height: 15),
               TextFormField(
@@ -121,11 +137,7 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
                   labelText: 'Electricity Usage (kWh)',
                   hintText: 'e.g., 25.0',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: Icon(Icons.lightbulb, color: Colors.green.shade700),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.green.shade700, width: 2.0),
-                  ),
+                  prefixIcon: Icon(Icons.lightbulb),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -145,12 +157,6 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
                 label: Text(
                   _isEditing ? 'Save Changes' : 'Log Activity',
                   style: const TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                  minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: _handleSaveActivity,
               ),

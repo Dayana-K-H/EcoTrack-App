@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/auth_view_model.dart';
 import '../view_models/carbon_log_view_model.dart';
+import '../utils/carbon_calculator.dart';
 import 'auth_view.dart';
 import 'carbon_log_view.dart';
 import 'recent_activities_view.dart';
@@ -48,63 +49,57 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthViewModel>(
-      builder: (context, authViewModel, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              _getAppBarTitle(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            backgroundColor: Colors.green.shade700,
-            elevation: 4,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh, color: Colors.white),
-                onPressed: () {
-                  if (_selectedIndex == 1) { 
-                    Provider.of<CarbonLogViewModel>(context, listen: false).fetchActivities();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Dashboard data refreshed.')),
-                    );
-                  }
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.white),
-                onPressed: () async {
-                  await authViewModel.signOutUser();
-                  Provider.of<CarbonLogViewModel>(context, listen: false).clearActivities(); 
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => AuthView()),
-                  );
-                },
-              ),
-            ],
+    final authViewModel = Provider.of<AuthViewModel>(context);
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          _getAppBarTitle(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              if (_selectedIndex == 1) {
+                Provider.of<CarbonLogViewModel>(context, listen: false).fetchActivities();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Data refreshed.')),
+                );
+              }
+            },
           ),
-          body: _widgetOptions.elementAt(_selectedIndex),
-          bottomNavigationBar: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Dashboard',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.history),
-                label: 'Activities',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.green.shade700, 
-            unselectedItemColor: Colors.grey,
-            onTap: _onItemTapped, 
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await authViewModel.signOutUser();
+              Provider.of<CarbonLogViewModel>(context, listen: false).clearActivities();
+              if (!mounted) return;
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const AuthView()),
+              );
+            },
           ),
-        );
-      },
+        ],
+      ),
+      body: _widgetOptions.elementAt(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Activities',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: theme.primaryColor,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+      ),
     );
   }
 }
@@ -115,12 +110,28 @@ class _DashboardSummaryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
-    final carbonLogViewModel = Provider.of<CarbonLogViewModel>(context); 
+    final carbonLogViewModel = Provider.of<CarbonLogViewModel>(context);
+    final totalCarbon = carbonLogViewModel.getTotalCarbonFootprint();
+    final theme = Theme.of(context);
 
-    return Padding(
+    final treesNeeded = CarbonCalculator.toTreesNeeded(totalCarbon);
+    final kgArcticIceMelted = CarbonCalculator.toKgArcticIceMelted(totalCarbon);
+    final kgCoalBurned = CarbonCalculator.toKgCoalBurned(totalCarbon);
+
+    String _getSimplifiedDamageDescription(double carbonKg) {
+      if (carbonKg <= 0) {
+        return 'Start logging your activities to see your environmental impact and tips for a greener lifestyle!';
+      } else if (carbonKg < 100) {
+        return 'Your carbon footprint contributes to climate change. Reducing emissions from daily activities like transportation, energy, and waste is key for a healthier planet.';
+      } else {
+        return 'Your emissions have a noticeable impact. Significant efforts to reduce travel, conserve energy, and manage waste can lead to a positive change for the environment.';
+      }
+    }
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(
             child: Text(
@@ -128,7 +139,7 @@ class _DashboardSummaryPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.green.shade800,
+                color: theme.primaryColorDark,
               ),
               textAlign: TextAlign.center,
             ),
@@ -142,12 +153,6 @@ class _DashboardSummaryPage extends StatelessWidget {
                 'Log New Carbon Activity',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                minimumSize: const Size(double.infinity, 50),
-              ),
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const CarbonLogView()),
@@ -160,15 +165,35 @@ class _DashboardSummaryPage extends StatelessWidget {
           const SizedBox(height: 30),
 
           Text(
+            'Eco Tip of the Day:',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColorDark),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            elevation: 2,
+            color: theme.cardTheme.color,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                carbonLogViewModel.currentTip,
+                style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: theme.primaryColorDark),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+
+          Text(
             'Your Impact Overview:',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColorDark),
           ),
           const SizedBox(height: 10),
 
           Card(
             margin: const EdgeInsets.symmetric(vertical: 8.0),
             elevation: 2,
-            color: Colors.green.shade50,
+            color: theme.cardTheme.color,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -176,7 +201,7 @@ class _DashboardSummaryPage extends StatelessWidget {
                 children: [
                   Text(
                     'Total Carbon Footprint:',
-                    style: TextStyle(fontSize: 18, color: Colors.green.shade900),
+                    style: TextStyle(fontSize: 18, color: theme.primaryColorDark),
                   ),
                   const SizedBox(height: 5),
                   if (carbonLogViewModel.isLoading && carbonLogViewModel.activities.isEmpty)
@@ -185,15 +210,110 @@ class _DashboardSummaryPage extends StatelessWidget {
                     Text('Error: ${carbonLogViewModel.error}', style: const TextStyle(color: Colors.red))
                   else
                     Text(
-                      '${carbonLogViewModel.getTotalCarbonFootprint().toStringAsFixed(2)} kg CO2e',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green),
+                      '${totalCarbon.toStringAsFixed(2)} kg CO2e',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: theme.primaryColor),
                     ),
+                  const SizedBox(height: 15),
+
+                  Text(
+                    'Equivalent to:',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: theme.primaryColorDark),
+                  ),
+                  const SizedBox(height: 5),
+                  if (totalCarbon > 0) ...[
+                    _buildImpactRow(
+                      icon: Icons.park,
+                      iconColor: Colors.green,
+                      text: '${treesNeeded.toStringAsFixed(1)} trees for 1 year absorption',
+                      theme: theme,
+                    ),
+                    const SizedBox(height: 5),
+                    _buildImpactRow(
+                      icon: Icons.ac_unit,
+                      iconColor: Colors.lightBlue,
+                      text: '${kgArcticIceMelted.toStringAsFixed(1)} kg of Arctic ice melted',
+                      theme: theme,
+                    ),
+                    const SizedBox(height: 5),
+                    _buildImpactRow(
+                      icon: Icons.fireplace,
+                      iconColor: Colors.brown,
+                      text: '${kgCoalBurned.toStringAsFixed(1)} kg of coal burned',
+                      theme: theme,
+                    ),
+                  ] else ...[
+                    Text(
+                      'Log activities to see equivalents!',
+                      style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+
+          Card( 
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            elevation: 4, 
+            color: Colors.orange.shade50, 
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.warning, size: 28, color: Colors.deepOrange),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Environmental Impact:',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepOrange.shade800),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 20, thickness: 1, color: Colors.orange),
+                  Text(
+                    _getSimplifiedDamageDescription(totalCarbon),
+                    style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.black87),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Reducing emissions from transportation, electricity, and waste are crucial for a healthier planet.',
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildImpactRow({
+    required IconData icon,
+    required Color iconColor,
+    required String text,
+    required ThemeData theme,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: iconColor),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 16, color: theme.primaryColorDark),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            softWrap: true,
+          ),
+        ),
+      ],
     );
   }
 }

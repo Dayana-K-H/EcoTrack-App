@@ -12,11 +12,34 @@ class CarbonLogViewModel with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  final List<String> _ecoTips = [
+    "Reduce, Reuse, Recycle: Follow the 3 R's diligently.",
+    "Unplug electronics when not in use to save phantom energy.",
+    "Choose public transport, cycling, or walking over driving.",
+    "Eat more plant-based meals; less meat reduces your carbon footprint.",
+    "Switch to energy-efficient LED light bulbs.",
+    "Take shorter showers to conserve water and energy.",
+    "Buy local and seasonal produce to reduce transportation emissions.",
+    "Compost your food waste to prevent methane emissions in landfills.",
+    "Support businesses with strong environmental policies.",
+    "Educate yourself and others about climate change.",
+  ];
+  String _currentTip = '';
+
   List<CarbonActivity> get activities => _activities;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String get currentTip => _currentTip;
 
-  CarbonLogViewModel();
+  CarbonLogViewModel() {
+    getDailyTip(); 
+  }
+
+  void getDailyTip() {
+    _currentTip = _ecoTips[DateTime.now().day % _ecoTips.length];
+    notifyListeners();
+  }
+
   Future<void> fetchActivities() async {
     _isLoading = true;
     _error = null;
@@ -33,8 +56,8 @@ class CarbonLogViewModel with ChangeNotifier {
       final response = await _supabase
           .from('carbon_activities')
           .select('*')
-          .eq('user_id', userId)
-          .order('timestamp', ascending: false);
+          .eq('user_id', userId) 
+          .order('timestamp', ascending: false); 
 
       _activities = response
           .map<CarbonActivity>((json) => CarbonActivity.fromJson(json))
@@ -67,13 +90,13 @@ class CarbonLogViewModel with ChangeNotifier {
         electricityUsage: activity.electricityUsage,
         wasteWeight: activity.wasteWeight,
         timestamp: activity.timestamp,
-        type: activity.type
+        type: activity.type,
       );
 
       final response = await _supabase
           .from('carbon_activities')
           .insert(activityWithUser.toJson())
-          .select();
+          .select(); 
 
       if (response.isNotEmpty) {
         _activities.insert(0, CarbonActivity.fromJson(response.first));

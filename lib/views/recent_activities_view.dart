@@ -12,6 +12,7 @@ class RecentActivitiesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final carbonLogViewModel = Provider.of<CarbonLogViewModel>(context);
+    final theme = Theme.of(context);
 
     void _showDeleteConfirmation(BuildContext context, String activityId) {
       showDialog(
@@ -81,7 +82,7 @@ class RecentActivitiesView extends StatelessWidget {
         children: [
           Text(
             'Your Recent Activities:',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColorDark),
           ),
           const SizedBox(height: 10),
 
@@ -106,7 +107,7 @@ class RecentActivitiesView extends StatelessWidget {
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
                       elevation: 2,
-                      color: Colors.green.shade50,
+                      color: theme.cardTheme.color,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -117,7 +118,7 @@ class RecentActivitiesView extends StatelessWidget {
                               children: [
                                 Text(
                                   'Date: ${activity.timestamp.toLocal().toString().split(' ')[0]}',
-                                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green.shade900),
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryColorDark),
                                 ),
                                 Row(
                                   children: [
@@ -139,7 +140,7 @@ class RecentActivitiesView extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               'Carbon Footprint: ${activity.calculateCarbonFootprint().toStringAsFixed(2)} kg CO2e',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                              style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryColor),
                             ),
                           ],
                         ),
@@ -153,7 +154,7 @@ class RecentActivitiesView extends StatelessWidget {
           Center(
             child: Text(
               'Total Carbon Footprint: ${carbonLogViewModel.getTotalCarbonFootprint().toStringAsFixed(2)} kg CO2e',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade800),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.primaryColorDark),
             ),
           ),
         ],

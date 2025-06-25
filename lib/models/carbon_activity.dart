@@ -3,27 +3,26 @@ import '../utils/carbon_calculator.dart';
 enum CarbonActivityType { transport, electricity, waste }
 
 class CarbonActivity {
-  final String? id;
-  final String userId;
+  final String? id; 
+  final String userId; 
   final String transportMode; 
-  final double transportDistance;
+  final double transportDistance; 
   final double electricityUsage;
-  final double wasteWeight;
+  final double wasteWeight; 
   final DateTime timestamp;
-  final CarbonActivityType type; 
+  final CarbonActivityType type;
 
   CarbonActivity({
     this.id,
     required this.userId,
-    this.transportMode = 'N/A', 
-    this.transportDistance = 0.0, 
-    this.electricityUsage = 0.0, 
-    this.wasteWeight = 0.0, 
+    this.transportMode = 'N/A',
+    this.transportDistance = 0.0,
+    this.electricityUsage = 0.0,
+    this.wasteWeight = 0.0,
     required this.timestamp,
     required this.type,
   });
 
-  // Calculate Carbon Footprint
   double calculateCarbonFootprint() {
     return CarbonCalculator.calculateTotalFootprint(this);
   }

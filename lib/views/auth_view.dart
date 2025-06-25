@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../view_models/auth_view_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'home_dashboard_view.dart';
+import '../view_models/auth_view_model.dart';
+import 'home_dashboard_view.dart'; 
 
 class AuthView extends StatefulWidget {
+  const AuthView({super.key});
+
   @override
   _AuthViewState createState() => _AuthViewState();
 }
@@ -19,6 +21,7 @@ class _AuthViewState extends State<AuthView> {
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
+    Theme.of(context);
 
     return Scaffold(
       body: Center(
@@ -31,95 +34,95 @@ class _AuthViewState extends State<AuthView> {
               children: [
                 Text(
                   _isLogin ? 'Login to EcoTrack' : 'Sign Up for EcoTrack',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.teal), 
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 40), 
 
                 if (!_isLogin)
                   TextFormField(
                     controller: _nameController,
-                    cursorColor: Colors.green.shade700,
+                    cursorColor: Colors.teal,
                     decoration: InputDecoration(
                       labelText: 'Name',
                       labelStyle: TextStyle(
                         color: Colors.grey.shade600,
                       ),
                       floatingLabelStyle: TextStyle(
-                        color: Colors.green.shade700,
+                        color: Colors.teal,
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-                      prefixIcon: Icon(Icons.person, color: Colors.green.shade700),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: Icon(Icons.person, color: Colors.teal), 
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: Colors.green.shade700, width: 2.0),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.teal, width: 2.0),
                       ),
                     ),
                     keyboardType: TextInputType.name,
                     validator: (value) => value!.isEmpty ? 'Please enter your name' : null,
                   ),
                 if (!_isLogin)
-                  SizedBox(height: 20),
+                  SizedBox(height: 20), 
 
                 TextFormField(
                   controller: _emailController,
-                  cursorColor: Colors.green.shade700,
+                  cursorColor: Colors.teal, 
                   decoration: InputDecoration(
                     labelText: 'Email',
                     labelStyle: TextStyle(
                       color: Colors.grey.shade600,
                     ),
                     floatingLabelStyle: TextStyle(
-                      color: Colors.green.shade700,
+                      color: Colors.teal,
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-                    prefixIcon: Icon(Icons.email, color: Colors.green.shade700),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    prefixIcon: Icon(Icons.email, color: Colors.teal),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide(color: Colors.green.shade700, width: 2.0),
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.teal, width: 2.0),
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) => value!.isEmpty ? 'Please enter your email' : null,
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 20), 
                 TextFormField(
                   controller: _passwordController,
-                  cursorColor: Colors.green.shade700,
+                  cursorColor: Colors.teal,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: TextStyle(
                       color: Colors.grey.shade600,
                     ),
                     floatingLabelStyle: TextStyle(
-                      color: Colors.green.shade700,
+                      color: Colors.teal,
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-                    prefixIcon: Icon(Icons.lock, color: Colors.green.shade700),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    prefixIcon: Icon(Icons.lock, color: Colors.teal),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide(color: Colors.green.shade700, width: 2.0),
+                      borderRadius: BorderRadius.circular(12), 
+                      borderSide: BorderSide(color: Colors.teal, width: 2.0),
                     ),
                   ),
                   obscureText: true,
                   validator: (value) => value!.length < 8 ? 'Password must be at least 8 characters' : null,
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 30), 
                 if (authViewModel.errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Text(
                       authViewModel.errorMessage!,
-                      style: TextStyle(color: authViewModel.errorMessage!.startsWith('Error') ? Colors.red : Colors.green, fontSize: 16),
+                      style: TextStyle(color: authViewModel.errorMessage!.startsWith('Error') ? Colors.red : Colors.teal, fontSize: 16), 
                       textAlign: TextAlign.center,
                     ),
                   ),
                 authViewModel.isLoading
-                    ? CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade700),
+                    ? CircularProgressIndicator( 
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
                       )
                     : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
+                        style: ElevatedButton.styleFrom( 
+                          backgroundColor: Colors.teal,
                           padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                           minimumSize: Size(double.infinity, 50),
@@ -131,10 +134,10 @@ class _AuthViewState extends State<AuthView> {
                             } else {
                               await authViewModel.signUp(_emailController.text, _passwordController.text);
                             }
-
                             if (authViewModel.errorMessage == null && authViewModel.currentUser != null) {
+                              if (!mounted) return;
                               Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => HomeDashboard()),
+                                MaterialPageRoute(builder: (context) => HomeDashboard()), 
                               );
                             }
                           }
@@ -144,42 +147,44 @@ class _AuthViewState extends State<AuthView> {
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
                       ),
-                SizedBox(height: 20),
+                SizedBox(height: 20), 
 
                 if (_isLogin)
                   authViewModel.isLoading
-                      ? SizedBox.shrink()
-                      : OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                            side: BorderSide(color: Colors.green.shade600, width: 2.0),
-                            minimumSize: Size(double.infinity, 50),
-                          ),
-                          onPressed: () async {
-                            await authViewModel.signInWithGoogle();
-
-                            await Future.delayed(Duration(milliseconds: 100));
-
-                            if (authViewModel.errorMessage == 'Signed in with Google successfully!' || authViewModel.errorMessage == null) {
-                               if (authViewModel.currentUser != null) {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(builder: (context) => HomeDashboard()),
-                                );
+                      ? SizedBox.shrink() 
+                      : SizedBox( 
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              side: BorderSide(color: Colors.teal, width: 2.0),
+                              minimumSize: Size(double.infinity, 50),
+                            ),
+                            onPressed: () async {
+                              await authViewModel.signInWithGoogle();
+                              await Future.delayed(Duration(milliseconds: 100));
+                              if (!mounted) return;
+                              if (authViewModel.errorMessage == 'Signed in with Google successfully!' || authViewModel.errorMessage == null) {
+                                if (authViewModel.currentUser != null) {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (context) => HomeDashboard()),
+                                  );
+                                }
                               }
-                            }
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(FontAwesomeIcons.google, color: Colors.black, size: 20),
-                              SizedBox(width: 10),
-                              Text(
-                                'Login with Google',
-                                style: TextStyle(fontSize: 18, color: Colors.black),
-                              ),
-                            ],
+                            },
+                            child: Row( 
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(FontAwesomeIcons.google, color: Colors.black, size: 20),
+                                SizedBox(width: 10), 
+                                Text(
+                                  'Login with Google',
+                                  style: TextStyle(fontSize: 18, color: Colors.black),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                 if (_isLogin)
@@ -206,7 +211,7 @@ class _AuthViewState extends State<AuthView> {
                                 text: 'Sign Up',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green.shade700,
+                                  color: Colors.teal,
                                 ),
                               ),
                             ],
@@ -221,7 +226,7 @@ class _AuthViewState extends State<AuthView> {
                                 text: 'Login',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green.shade700,
+                                  color: Colors.teal,
                                 ),
                               ),
                             ],

@@ -67,7 +67,6 @@ class AuthViewModel with ChangeNotifier {
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -94,21 +93,6 @@ class AuthViewModel with ChangeNotifier {
       if (await GoogleSignIn().isSignedIn()) {
         await GoogleSignIn().signOut();
       }
-    } on FirebaseAuthException catch (e) {
-      _errorMessage = e.message;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> sendPasswordReset(String email) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-      _errorMessage = 'Password reset email sent. Check your inbox.';
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message;
     } finally {

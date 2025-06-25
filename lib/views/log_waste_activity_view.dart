@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/carbon_activity.dart';
 import '../view_models/carbon_log_view_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LogWasteActivityView extends StatefulWidget {
   final CarbonActivity? activityToEdit;
@@ -53,7 +54,7 @@ class _LogWasteActivityViewState extends State<LogWasteActivityView> {
         electricityUsage: _isEditing ? widget.activityToEdit!.electricityUsage : 0.0,
         wasteWeight: double.parse(_wasteWeightController.text),
         timestamp: _isEditing ? widget.activityToEdit!.timestamp : DateTime.now(),
-        type: CarbonActivityType.waste, // NEW: Tetapkan jenis aktivitas
+        type: CarbonActivityType.waste,
       );
 
       if (_isEditing) {
@@ -86,14 +87,13 @@ class _LogWasteActivityViewState extends State<LogWasteActivityView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           _isEditing ? 'Edit Waste Generation' : 'Log Waste Generation',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.green.shade700,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -108,10 +108,9 @@ class _LogWasteActivityViewState extends State<LogWasteActivityView> {
               ),
               const SizedBox(height: 30),
 
-              // --- Waste Generation Section ---
               Text(
                 'Waste Generation',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColorDark),
               ),
               const SizedBox(height: 15),
               TextFormField(
@@ -121,11 +120,7 @@ class _LogWasteActivityViewState extends State<LogWasteActivityView> {
                   labelText: 'Waste Weight (kg)',
                   hintText: 'e.g., 1.5',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: Icon(Icons.delete, color: Colors.green.shade700),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.green.shade700, width: 2.0),
-                  ),
+                  prefixIcon: Icon(Icons.delete),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -145,12 +140,6 @@ class _LogWasteActivityViewState extends State<LogWasteActivityView> {
                 label: Text(
                   _isEditing ? 'Save Changes' : 'Log Activity',
                   style: const TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                  minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: _handleSaveActivity,
               ),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'auth_view.dart';
 import 'home_dashboard_view.dart';
+import 'auth_view.dart';
 
 class SplashView extends StatefulWidget {
+  const SplashView({super.key});
+
   @override
-  _SplashViewState createState() => _SplashViewState();
+  State<SplashView> createState() => _SplashViewState();
 }
 
 class _SplashViewState extends State<SplashView> {
@@ -16,7 +18,7 @@ class _SplashViewState extends State<SplashView> {
   }
 
   void _navigateToNextScreen() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 3));
 
     User? user = FirebaseAuth.instance.currentUser;
 
@@ -28,16 +30,18 @@ class _SplashViewState extends State<SplashView> {
       );
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomeDashboard()),
+        MaterialPageRoute(builder: (context) => const HomeDashboard()),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.white, Colors.white],
             begin: Alignment.topLeft,
@@ -53,8 +57,8 @@ class _SplashViewState extends State<SplashView> {
                 width: 120,
                 height: 120,
               ),
-              SizedBox(height: 24),
-              Text(
+              const SizedBox(height: 24),
+              const Text(
                 'Track Your Impact',
                 style: TextStyle(
                   fontSize: 32,
@@ -63,21 +67,21 @@ class _SplashViewState extends State<SplashView> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              const SizedBox(height: 12),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 40.0),
                 child: Text(
                   'Easily log your daily activities to understand and reduce your carbon footprint.',
                   style: TextStyle(fontSize: 18, color: Colors.black54),
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 40),
-              SizedBox( 
+              const SizedBox(height: 40),
+              SizedBox(
                 width: 150,
                 child: LinearProgressIndicator(
-                  color: Colors.green.shade700,
-                  backgroundColor: Colors.green.shade100,
+                  color: theme.primaryColor,
+                  backgroundColor: theme.primaryColor.withOpacity(0.3),
                 ),
               ),
             ],

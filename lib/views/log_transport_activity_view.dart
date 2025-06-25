@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/carbon_activity.dart';
 import '../view_models/carbon_log_view_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LogTransportActivityView extends StatefulWidget {
   final CarbonActivity? activityToEdit;
@@ -56,7 +57,7 @@ class _LogTransportActivityViewState extends State<LogTransportActivityView> {
         electricityUsage: _isEditing ? widget.activityToEdit!.electricityUsage : 0.0,
         wasteWeight: _isEditing ? widget.activityToEdit!.wasteWeight : 0.0,
         timestamp: _isEditing ? widget.activityToEdit!.timestamp : DateTime.now(),
-        type: CarbonActivityType.transport, // NEW: Tetapkan jenis aktivitas
+        type: CarbonActivityType.transport,
       );
 
       if (_isEditing) {
@@ -89,14 +90,13 @@ class _LogTransportActivityViewState extends State<LogTransportActivityView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           _isEditing ? 'Edit Transport Activity' : 'Log Transport Activity',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.green.shade700,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -111,21 +111,15 @@ class _LogTransportActivityViewState extends State<LogTransportActivityView> {
               ),
               const SizedBox(height: 30),
 
-              // --- Transportation Section ---
               Text(
                 'Transportation',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.primaryColorDark),
               ),
               const SizedBox(height: 15),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   labelText: 'Mode of Transport',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: Icon(Icons.directions_car, color: Colors.green.shade700),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.green.shade700, width: 2.0),
-                  ),
+                  prefixIcon: Icon(Icons.directions_car),
                 ),
                 value: _selectedTransportMode,
                 hint: const Text('Select mode'),
@@ -150,12 +144,7 @@ class _LogTransportActivityViewState extends State<LogTransportActivityView> {
                 decoration: InputDecoration(
                   labelText: 'Distance (km)',
                   hintText: 'e.g., 10.5',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: Icon(Icons.route, color: Colors.green.shade700),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.green.shade700, width: 2.0),
-                  ),
+                  prefixIcon: Icon(Icons.route),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -175,12 +164,6 @@ class _LogTransportActivityViewState extends State<LogTransportActivityView> {
                 label: Text(
                   _isEditing ? 'Save Changes' : 'Log Activity',
                   style: const TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                  minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: _handleSaveActivity,
               ),
