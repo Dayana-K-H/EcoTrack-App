@@ -36,7 +36,7 @@ class _AuthViewState extends State<AuthView> {
                   _isLogin ? 'Login to EcoTrack' : 'Sign Up for EcoTrack',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.teal), 
                 ),
-                SizedBox(height: 40), 
+                SizedBox(height: 40),
 
                 if (!_isLogin)
                   TextFormField(
@@ -61,7 +61,7 @@ class _AuthViewState extends State<AuthView> {
                     validator: (value) => value!.isEmpty ? 'Please enter your name' : null,
                   ),
                 if (!_isLogin)
-                  SizedBox(height: 20), 
+                  SizedBox(height: 20),
 
                 TextFormField(
                   controller: _emailController,
@@ -84,7 +84,8 @@ class _AuthViewState extends State<AuthView> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) => value!.isEmpty ? 'Please enter your email' : null,
                 ),
-                SizedBox(height: 20), 
+                SizedBox(height: 20),
+
                 TextFormField(
                   controller: _passwordController,
                   cursorColor: Colors.teal,
@@ -104,20 +105,28 @@ class _AuthViewState extends State<AuthView> {
                     ),
                   ),
                   obscureText: true,
-                  validator: (value) => value!.length < 8 ? 'Password must be at least 8 characters' : null,
+                  validator: (value) => value!.length < 8 ? 'Password must be at least 8 characters' : null, // Validasi password
                 ),
-                SizedBox(height: 30), 
+                SizedBox(height: 30),
+
                 if (authViewModel.errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Text(
                       authViewModel.errorMessage!,
-                      style: TextStyle(color: authViewModel.errorMessage!.startsWith('Error') ? Colors.red : Colors.teal, fontSize: 16), 
+                      style: TextStyle(
+                        color: authViewModel.errorMessage!.startsWith('Sign up successful!') || 
+                               authViewModel.errorMessage!.startsWith('Signed in with Google successfully!')
+                               ? Colors.teal 
+                               : Colors.red, 
+                        fontSize: 16,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
+
                 authViewModel.isLoading
-                    ? CircularProgressIndicator( 
+                    ? CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
                       )
                     : ElevatedButton(
@@ -131,14 +140,30 @@ class _AuthViewState extends State<AuthView> {
                           if (_formKey.currentState!.validate()) {
                             if (_isLogin) {
                               await authViewModel.signIn(_emailController.text, _passwordController.text);
-                            } else {
-                              await authViewModel.signUp(_emailController.text, _passwordController.text);
-                            }
-                            if (authViewModel.errorMessage == null && authViewModel.currentUser != null) {
                               if (!mounted) return;
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => HomeDashboard()), 
-                              );
+                              if (authViewModel.currentUser != null) {
+                                await Future.delayed(Duration(milliseconds: 500)); 
+                                final updatedUser = authViewModel.currentUser;
+                                print('After delay in AuthView. Current User Display Name: ${updatedUser?.displayName}');
+                                if (updatedUser != null && mounted) { 
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (context) => HomeDashboard()), 
+                                  );
+                                }
+                              }
+                            } else {
+                              await authViewModel.signUp(_emailController.text, _passwordController.text, _nameController.text);
+                              if (!mounted) return;
+                              
+                              if (authViewModel.errorMessage!.contains('Sign up successful!')) {
+                                setState(() {
+                                  _isLogin = true;
+                                  _emailController.clear();
+                                  _passwordController.clear();
+                                  _nameController.clear();
+                                  _formKey.currentState?.reset();
+                                });
+                              }
                             }
                           }
                         },
@@ -151,7 +176,7 @@ class _AuthViewState extends State<AuthView> {
 
                 if (_isLogin)
                   authViewModel.isLoading
-                      ? SizedBox.shrink() 
+                      ? SizedBox.shrink()
                       : SizedBox( 
                           width: double.infinity,
                           child: OutlinedButton(
@@ -164,14 +189,15 @@ class _AuthViewState extends State<AuthView> {
                             ),
                             onPressed: () async {
                               await authViewModel.signInWithGoogle();
-                              await Future.delayed(Duration(milliseconds: 100));
+                              await Future.delayed(Duration(milliseconds: 500)); 
                               if (!mounted) return;
-                              if (authViewModel.errorMessage == 'Signed in with Google successfully!' || authViewModel.errorMessage == null) {
-                                if (authViewModel.currentUser != null) {
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (context) => HomeDashboard()),
-                                  );
-                                }
+                              
+                              final updatedUser = authViewModel.currentUser;
+                              print('After Google sign-in delay in AuthView. Current User Display Name: ${updatedUser?.displayName}');
+                              if (updatedUser != null && mounted) { 
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(builder: (context) => HomeDashboard()),
+                                );
                               }
                             },
                             child: Row( 
@@ -196,7 +222,7 @@ class _AuthViewState extends State<AuthView> {
                       _isLogin = !_isLogin;
                       authViewModel.clearErrorMessage();
                       _emailController.clear();
-                      _passwordController.clear();
+                      _passwordController.clear(); 
                       _nameController.clear();
                       _formKey.currentState?.reset();
                     });

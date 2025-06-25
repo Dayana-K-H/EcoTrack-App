@@ -128,6 +128,12 @@ class _DashboardSummaryPage extends StatelessWidget {
       }
     }
 
+    final String displayName = authViewModel.currentUser?.displayName ?? 
+                               (authViewModel.currentUser?.email?.split('@')[0]) ?? 
+                               'User';
+    print('Dashboard: Displaying name: $displayName');
+
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -135,7 +141,7 @@ class _DashboardSummaryPage extends StatelessWidget {
         children: [
           Center(
             child: Text(
-              'Welcome, ${authViewModel.currentUser?.email ?? 'User'}!',
+              'Welcome, $displayName!',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
