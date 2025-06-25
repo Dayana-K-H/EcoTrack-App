@@ -1,5 +1,3 @@
-// lib/views/log_electricity_activity_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -42,9 +40,11 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
       final userId = FirebaseAuth.instance.currentUser?.uid;
 
       if (userId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: User not logged in.')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error: User not logged in.')),
+          );
+        }
         return;
       }
 
@@ -59,31 +59,47 @@ class _LogElectricityActivityViewState extends State<LogElectricityActivityView>
         type: CarbonActivityType.electricity,
       );
 
+      bool success = false;
+
       if (_isEditing) {
         await carbonLogViewModel.updateActivity(activity);
         if (carbonLogViewModel.error == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Activity updated successfully!')),
-          );
+          success = true;
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Activity updated successfully!')),
+            );
+          }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update activity: ${carbonLogViewModel.error}')),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to update activity: ${carbonLogViewModel.error}')),
+            );
+          }
         }
       } else {
         await carbonLogViewModel.addActivity(activity);
         if (carbonLogViewModel.error == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Electricity usage logged successfully!')),
-          );
+          success = true;
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Electricity usage logged successfully!')),
+            );
+          }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to log activity: ${carbonLogViewModel.error}')),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to log activity: ${carbonLogViewModel.error}')),
+            );
+          }
         }
       }
 
-      Navigator.of(context).pop();
+      if (mounted && success) {
+        Navigator.of(context).pop(true);
+      } else if (mounted) {
+        Navigator.of(context).pop(false);
+      }
     }
   }
 

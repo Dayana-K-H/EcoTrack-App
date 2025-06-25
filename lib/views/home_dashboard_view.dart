@@ -159,12 +159,17 @@ class _DashboardSummaryPage extends StatelessWidget {
                 'Log New Carbon Activity',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
-              onPressed: () {
-                Navigator.of(context).push(
+              onPressed: () async {
+                final result = await Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const CarbonLogView()),
-                ).then((_) {
+                );
+
+                if (result == true) {
                   carbonLogViewModel.fetchActivities();
-                });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Activity logged successfully!')),
+                  );
+                }
               },
             ),
           ),

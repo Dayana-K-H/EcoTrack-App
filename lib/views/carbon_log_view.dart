@@ -26,10 +26,15 @@ class CarbonLogView extends StatelessWidget {
                 theme: theme,
                 icon: Icons.directions_car,
                 text: 'Log Transportation Activity',
-                onPressed: () {
-                  Navigator.of(context).push(
+                onPressed: () async {
+                  final result = await Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const LogTransportActivityView()),
                   );
+                  if (result == true) {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop(true);
+                    }
+                  }
                 },
               ),
               const SizedBox(height: 20),
@@ -38,10 +43,15 @@ class CarbonLogView extends StatelessWidget {
                 theme: theme,
                 icon: Icons.lightbulb,
                 text: 'Log Electricity Usage',
-                onPressed: () {
-                  Navigator.of(context).push(
+                onPressed: () async {
+                  final result = await Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const LogElectricityActivityView()),
                   );
+                  if (result == true) {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop(true);
+                    }
+                  }
                 },
               ),
               const SizedBox(height: 20),
@@ -50,10 +60,15 @@ class CarbonLogView extends StatelessWidget {
                 theme: theme,
                 icon: Icons.delete,
                 text: 'Log Waste Generation',
-                onPressed: () {
-                  Navigator.of(context).push(
+                onPressed: () async {
+                  final result = await Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const LogWasteActivityView()),
                   );
+                  if (result == true) {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop(true);
+                    }
+                  }
                 },
               ),
             ],
