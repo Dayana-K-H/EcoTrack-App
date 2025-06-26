@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../view_models/auth_view_model.dart';
 import '../view_models/carbon_log_view_model.dart';
 import '../utils/carbon_calculator.dart';
+import 'auth_view.dart';
 import 'carbon_log_view.dart';
 import 'recent_activities_view.dart';
 import 'profile_view.dart';
@@ -61,17 +62,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
           _getAppBarTitle(),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              if (_selectedIndex == 1 || _selectedIndex == 0) {
-                Provider.of<CarbonLogViewModel>(context, listen: false).fetchActivities();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Data refreshed.')),
-                );
-              }
-            },
-          ),
+          // Tombol refresh dihapus dari sini
         ],
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
