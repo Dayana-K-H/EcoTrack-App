@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 import '../view_models/auth_view_model.dart';
 import 'home_dashboard_view.dart'; 
 
@@ -105,7 +105,7 @@ class _AuthViewState extends State<AuthView> {
                     ),
                   ),
                   obscureText: true,
-                  validator: (value) => value!.length < 8 ? 'Password must be at least 8 characters' : null, // Validasi password
+                  validator: (value) => value!.length < 8 ? 'Password must be at least 8 characters' : null,
                 ),
                 SizedBox(height: 30),
 
@@ -141,6 +141,7 @@ class _AuthViewState extends State<AuthView> {
                             if (_isLogin) {
                               await authViewModel.signIn(_emailController.text, _passwordController.text);
                               if (!mounted) return;
+                              
                               if (authViewModel.currentUser != null) {
                                 await Future.delayed(Duration(milliseconds: 500)); 
                                 final updatedUser = authViewModel.currentUser;
@@ -177,16 +178,18 @@ class _AuthViewState extends State<AuthView> {
                 if (_isLogin)
                   authViewModel.isLoading
                       ? SizedBox.shrink()
-                      : SizedBox( 
+                      : Container(
                           width: double.infinity,
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                              side: BorderSide(color: Colors.teal, width: 2.0),
-                              minimumSize: Size(double.infinity, 50),
-                            ),
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.teal, width: 2.0),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: SignInButton(
+                            Buttons.google,
+                            text: "Login with Google", 
+                            textStyle: TextStyle(fontSize: 20, color: Colors.black),
                             onPressed: () async {
                               await authViewModel.signInWithGoogle();
                               await Future.delayed(Duration(milliseconds: 500)); 
@@ -200,17 +203,10 @@ class _AuthViewState extends State<AuthView> {
                                 );
                               }
                             },
-                            child: Row( 
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(FontAwesomeIcons.google, color: Colors.black, size: 20),
-                                SizedBox(width: 10), 
-                                Text(
-                                  'Login with Google',
-                                  style: TextStyle(fontSize: 18, color: Colors.black),
-                                ),
-                              ],
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+    
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            elevation: 0,
                           ),
                         ),
                 if (_isLogin)
@@ -222,7 +218,7 @@ class _AuthViewState extends State<AuthView> {
                       _isLogin = !_isLogin;
                       authViewModel.clearErrorMessage();
                       _emailController.clear();
-                      _passwordController.clear(); 
+                      _passwordController.clear();
                       _nameController.clear();
                       _formKey.currentState?.reset();
                     });
