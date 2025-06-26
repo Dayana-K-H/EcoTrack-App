@@ -242,7 +242,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      '${carbonValue.toStringAsFixed(1)}kg',
+                                      '${carbonValue.toStringAsFixed(2)}kg',
                                       style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
                                     ),
                                     const SizedBox(height: 4),
