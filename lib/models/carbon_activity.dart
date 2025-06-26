@@ -24,7 +24,7 @@ class CarbonActivity {
   });
 
   double calculateCarbonFootprint() {
-    return CarbonCalculator.calculateTotalFootprint(this);
+    return CarbonCalculator.calculateTotalCarbonForActivity(this);
   }
 
   Map<String, dynamic> toJson() {

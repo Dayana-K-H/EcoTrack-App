@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import '../view_models/auth_view_model.dart';
 import '../view_models/carbon_log_view_model.dart';
 import '../utils/carbon_calculator.dart';
-import 'auth_view.dart';
 import 'carbon_log_view.dart';
 import 'recent_activities_view.dart';
+import 'profile_view.dart';
 
 class HomeDashboard extends StatefulWidget {
   const HomeDashboard({super.key});
@@ -17,14 +17,16 @@ class HomeDashboard extends StatefulWidget {
 class _HomeDashboardState extends State<HomeDashboard> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    _DashboardSummaryPage(),
-    RecentActivitiesView(),
-  ];
+  late final List<Widget> _widgetOptions;
 
   @override
   void initState() {
     super.initState();
+    _widgetOptions = <Widget>[
+      const _DashboardSummaryPage(),
+      const RecentActivitiesView(),
+      const ProfileView(),
+    ];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CarbonLogViewModel>(context, listen: false).fetchActivities();
     });
@@ -42,6 +44,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
         return 'EcoTrack Dashboard';
       case 1:
         return 'Recent Activities';
+      case 2:
+        return 'Your Profile';
       default:
         return 'EcoTrack';
     }
@@ -49,7 +53,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final authViewModel = Provider.of<AuthViewModel>(context);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -61,24 +64,12 @@ class _HomeDashboardState extends State<HomeDashboard> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              if (_selectedIndex == 1) {
+              if (_selectedIndex == 1 || _selectedIndex == 0) {
                 Provider.of<CarbonLogViewModel>(context, listen: false).fetchActivities();
-              } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Data refreshed.')),
                 );
               }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authViewModel.signOutUser();
-              Provider.of<CarbonLogViewModel>(context, listen: false).clearActivities();
-              if (!mounted) return;
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const AuthView()),
-              );
             },
           ),
         ],
@@ -93,6 +84,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
             label: 'Activities',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -166,9 +161,11 @@ class _DashboardSummaryPage extends StatelessWidget {
 
                 if (result == true) {
                   carbonLogViewModel.fetchActivities();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Activity logged successfully!')),
-                  );
+                  if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Activity logged successfully!')),
+                      );
+                  }
                 }
               },
             ),

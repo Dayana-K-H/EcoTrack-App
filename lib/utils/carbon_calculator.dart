@@ -1,62 +1,54 @@
 import '../models/carbon_activity.dart';
 
 class CarbonCalculator {
-  static const Map<String, double> _transportEmissionFactors = {
-    'Car': 0.18,          
-    'Motorcycle': 0.1,  
-    'Public Transport': 0.05,
-  };
-  static const double _electricityEmissionFactor = 0.23; 
-  static const double _wasteEmissionFactor = 0.5;     
+  static const double _carEmissionFactor = 0.18;
+  static const double _motorcycleEmissionFactor = 0.08;
+  static const double _publicTransportEmissionFactor = 0.05;
+  static const double _gridElectricityEmissionFactor = 0.5;
+  static const double _wasteEmissionFactor = 0.2;
 
-  static const double _kgCo2ePerTreePerYear = 21.0;
-  static const double _kgCo2eToKgArcticIceMelted = 3.0;
-  static const double _kgCo2ePerKgCoalBurned = 2.42;
-
-  static double calculateTotalFootprint(CarbonActivity activity) {
-    double totalCarbon = 0.0;
-
-    if (activity.transportMode != 'N/A' && activity.transportDistance > 0) {
-      final transportFactor = _transportEmissionFactors[activity.transportMode] ?? 0.0;
-      totalCarbon += activity.transportDistance * transportFactor;
+  static double calculateTransportCarbon(String mode, double distance) {
+    switch (mode) {
+      case 'Car':
+        return distance * _carEmissionFactor;
+      case 'Motorcycle':
+        return distance * _motorcycleEmissionFactor;
+      case 'Public Transport':
+        return distance * _publicTransportEmissionFactor;
+      default:
+        return 0.0;
     }
+  }
 
-    if (activity.electricityUsage > 0) {
-      totalCarbon += activity.electricityUsage * _electricityEmissionFactor;
+  static double calculateElectricityCarbon(double usageKWh) {
+    return usageKWh * _gridElectricityEmissionFactor;
+  }
+
+  static double calculateWasteCarbon(double wasteKg) {
+    return wasteKg * _wasteEmissionFactor;
+  }
+
+  static double calculateTotalCarbonForActivity(CarbonActivity activity) {
+    double total = 0.0;
+    if (activity.type == CarbonActivityType.transport) {
+      total += calculateTransportCarbon(activity.transportMode, activity.transportDistance);
+    } else if (activity.type == CarbonActivityType.electricity) {
+      total += calculateElectricityCarbon(activity.electricityUsage);
+    } else if (activity.type == CarbonActivityType.waste) {
+      total += calculateWasteCarbon(activity.wasteWeight);
     }
-
-    if (activity.wasteWeight > 0) {
-      totalCarbon += activity.wasteWeight * _wasteEmissionFactor;
-    }
-
-    return totalCarbon;
+    return total;
   }
 
-  static double calculateTransportFootprint(String mode, double distance) {
-    final factor = _transportEmissionFactors[mode] ?? 0.0;
-    return distance * factor;
+  static double toTreesNeeded(double carbonKg) {
+    return carbonKg / 22.0;
   }
 
-  static double calculateElectricityFootprint(double usageKWh) {
-    return usageKWh * _electricityEmissionFactor;
+  static double toKgArcticIceMelted(double carbonKg) {
+    return carbonKg * 3.0;
   }
 
-  static double calculateWasteFootprint(double weightKg) {
-    return weightKg * _wasteEmissionFactor;
-  }
-
-  static double toTreesNeeded(double totalKgCo2e) {
-    if (totalKgCo2e <= 0) return 0.0;
-    return totalKgCo2e / _kgCo2ePerTreePerYear;
-  }
-
-  static double toKgArcticIceMelted(double totalKgCo2e) {
-    if (totalKgCo2e <= 0) return 0.0;
-    return totalKgCo2e * _kgCo2eToKgArcticIceMelted;
-  }
-
-  static double toKgCoalBurned(double totalKgCo2e) {
-    if (totalKgCo2e <= 0 || _kgCo2ePerKgCoalBurned == 0) return 0.0;
-    return totalKgCo2e / _kgCo2ePerKgCoalBurned;
+  static double toKgCoalBurned(double carbonKg) {
+    return carbonKg / 2.5;
   }
 }

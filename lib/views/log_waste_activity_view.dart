@@ -98,7 +98,7 @@ class _LogWasteActivityViewState extends State<LogWasteActivityView> {
       if (mounted && success) {
         Navigator.of(context).pop(true);
       } else if (mounted) {
-        Navigator.of(context).pop(false); 
+        Navigator.of(context).pop(false);
       }
     }
   }
