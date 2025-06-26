@@ -62,6 +62,7 @@ class CarbonLogViewModel with ChangeNotifier {
       _activities = response
           .map<CarbonActivity>((json) => CarbonActivity.fromJson(json))
           .toList();
+      _error = null;
     } catch (e) {
       _error = 'Failed to fetch carbon activities: $e';
       _activities = [];
@@ -71,7 +72,7 @@ class CarbonLogViewModel with ChangeNotifier {
     }
   }
 
-  Future<void> addActivity(CarbonActivity activity) async {
+  Future<bool> addActivity(CarbonActivity activity) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -80,7 +81,7 @@ class CarbonLogViewModel with ChangeNotifier {
       final userId = _auth.currentUser?.uid;
       if (userId == null) {
         _error = 'User not logged in. Cannot add activity.';
-        return;
+        return false;
       }
 
       final activityWithUser = CarbonActivity(
@@ -99,19 +100,23 @@ class CarbonLogViewModel with ChangeNotifier {
           .select(); 
 
       if (response.isNotEmpty) {
-        _activities.insert(0, CarbonActivity.fromJson(response.first));
+        _error = null;
+        await fetchActivities();
+        return true;
       } else {
         _error = 'Failed to add activity to Supabase.';
+        return false;
       }
     } catch (e) {
       _error = 'Failed to add carbon activity: $e';
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> updateActivity(CarbonActivity activity) async {
+  Future<bool> updateActivity(CarbonActivity activity) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -120,7 +125,7 @@ class CarbonLogViewModel with ChangeNotifier {
       final userId = _auth.currentUser?.uid;
       if (userId == null || activity.id == null) {
         _error = 'User not logged in or activity ID is missing. Cannot update.';
-        return;
+        return false;
       }
 
       await _supabase
@@ -129,19 +134,20 @@ class CarbonLogViewModel with ChangeNotifier {
           .eq('id', activity.id as Object)
           .eq('user_id', userId);
 
-      final index = _activities.indexWhere((a) => a.id == activity.id);
-      if (index != -1) {
-        _activities[index] = activity;
-      }
+      _error = null;
+      await fetchActivities();
+      return true;
+      
     } catch (e) {
       _error = 'Failed to update carbon activity: $e';
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> deleteActivity(String activityId) async {
+  Future<bool> deleteActivity(String activityId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -150,7 +156,7 @@ class CarbonLogViewModel with ChangeNotifier {
       final userId = _auth.currentUser?.uid;
       if (userId == null) {
         _error = 'User not logged in. Cannot delete activity.';
-        return;
+        return false;
       }
 
       await _supabase
@@ -159,9 +165,13 @@ class CarbonLogViewModel with ChangeNotifier {
           .eq('id', activityId)
           .eq('user_id', userId);
 
-      _activities.removeWhere((activity) => activity.id == activityId);
+      _error = null;
+      await fetchActivities();
+      return true;
+      
     } catch (e) {
       _error = 'Failed to delete carbon activity: $e';
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

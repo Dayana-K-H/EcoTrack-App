@@ -14,29 +14,33 @@ class RecentActivitiesView extends StatelessWidget {
     final carbonLogViewModel = Provider.of<CarbonLogViewModel>(context);
     final theme = Theme.of(context);
 
-    void _showDeleteConfirmation(BuildContext context, String activityId) {
+    void _showDeleteConfirmation(BuildContext rootContext, String activityId) {
       showDialog(
-        context: context,
-        builder: (BuildContext context) {
+        context: rootContext,
+        builder: (BuildContext dialogContext) {
           return AlertDialog(
             title: const Text('Confirm Deletion'),
             content: const Text('Are you sure you want to delete this activity?'),
             actions: <Widget>[
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.of(dialogContext).pop(),
                 child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () async {
-                  Navigator.of(context).pop();
-                  final vm = Provider.of<CarbonLogViewModel>(context, listen: false);
-                  await vm.deleteActivity(activityId);
-                  if (vm.error == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                  final vm = Provider.of<CarbonLogViewModel>(rootContext, listen: false);
+                  final messenger = ScaffoldMessenger.of(rootContext);
+
+                  Navigator.of(dialogContext).pop();
+
+                  final success = await vm.deleteActivity(activityId);
+
+                  if (success) {
+                    messenger.showSnackBar(
                       const SnackBar(content: Text('Activity deleted successfully!')),
                     );
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       SnackBar(content: Text('Failed to delete activity: ${vm.error}')),
                     );
                   }
@@ -65,12 +69,16 @@ class RecentActivitiesView extends StatelessWidget {
 
       return IconButton(
         icon: const Icon(Icons.edit, color: Colors.blue),
-        onPressed: () {
-          Navigator.of(context).push(
+        onPressed: () async {
+          final dynamic result = await Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => pageToNavigate),
-          ).then((_) {
+          );
+
+          if (!context.mounted) return;
+
+          if (result is bool && result == true) {
             Provider.of<CarbonLogViewModel>(context, listen: false).fetchActivities();
-          });
+          }
         },
       );
     }
